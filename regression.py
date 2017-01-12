@@ -8,7 +8,7 @@
 
 # 线性回归
 
-from numpy import *
+import numpy as np
 
 def loadDataSet(fileName):
     '''
@@ -41,13 +41,13 @@ def standRegres(xArr,yArr):
     :return: 可使代价函数最小的回归系数向量
     '''
     # 数据矩阵
-    xMat = mat(xArr)
+    xMat = np.mat(xArr)
     # 转成列向量
-    yMat = mat(yArr).T
+    yMat = np.mat(yArr).T
     # 计算xTx
     xTx = xMat.T*xMat
     # 计算xTx行列式值，从而判断是否可逆
-    if linalg.det(xTx) == 0.0:
+    if np.linalg.det(xTx) == 0.0:
         # xTx为奇异矩阵，不可逆
         print("This matrix is singular, cannot do inverse")
         return
@@ -62,8 +62,8 @@ def step01():
     print(xArr[:2])
     ws = standRegres(xArr,yArr)
     print(ws)
-    xMat = mat(xArr) # 训练集矩阵
-    yMat = mat(yArr) # 标签集矩阵
+    xMat = np.mat(xArr) # 训练集矩阵
+    yMat = np.mat(yArr) # 标签集矩阵
     yHat = xMat * ws # 回归值矩阵
 
     import matplotlib.pyplot as plt
@@ -83,6 +83,11 @@ def step01():
     yHat = xCopy * ws
     ax.plot(xCopy[:,1],yHat)
     plt.show()
+
+    # 计算预测值和真实值的相关系数
+    yHat = xMat * ws  # 回归值矩阵
+    # 确保二者都为行向量
+    print(np.corrcoef(yHat.T, yMat))
 
 
 if __name__ == "__main__":
