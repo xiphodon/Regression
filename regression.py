@@ -48,7 +48,7 @@ def standRegres(xArr,yArr):
     xTx = xMat.T*xMat
     # 计算xTx行列式值，从而判断是否可逆
     if linalg.det(xTx) == 0.0:
-        # 奇异矩阵，不可逆
+        # xTx为奇异矩阵，不可逆
         print("This matrix is singular, cannot do inverse")
         return
     # 计算回归系数【(xTx)^(-1)*xT*y】
@@ -62,6 +62,27 @@ def step01():
     print(xArr[:2])
     ws = standRegres(xArr,yArr)
     print(ws)
+    xMat = mat(xArr) # 训练集矩阵
+    yMat = mat(yArr) # 标签集矩阵
+    yHat = xMat * ws # 回归值矩阵
+
+    import matplotlib.pyplot as plt
+
+    # 绘制原始数据
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    # 绘制散点图（X数据向量，Y数据向量）
+    # 【mat.flatten(),使矩阵所有元素拼接为行向量 -> .A,行矩阵转成二维数组 -> .A[0]转成一维数组】
+    # eg: [[1,2],[3,4]] -> [[1,2,3,4,]] -> [1,2,3,4]
+    ax.scatter(xMat[:,1].flatten().A[0], yMat.T[:,0].flatten().A[0])
+
+    # 绘制回归直线
+    xCopy = xMat.copy()
+    # 0是列内排序，1是行内排序
+    xCopy.sort(0)
+    yHat = xCopy * ws
+    ax.plot(xCopy[:,1],yHat)
+    plt.show()
 
 
 if __name__ == "__main__":
