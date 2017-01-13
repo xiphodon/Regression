@@ -56,6 +56,52 @@ def standRegres(xArr,yArr):
     return ws
 
 
+
+def lwlr(testPoint,xArr,yArr,k=1.0):
+    '''
+    局部加权线性回归
+    :param testPoint: 某条数据
+    :param xArr: 数据集
+    :param yArr: 标签集
+    :param k: 高斯核函数参数k
+    :return: 加权回归系数
+    '''
+    xMat = np.mat(xArr)
+    # 转成列向量
+    yMat = np.mat(yArr).T
+    # 训练集矩阵行数（即样本数据量）
+    m = np.shape(xMat)[0]
+    # 创建对角矩阵
+    weights = np.mat(np.eye((m)))
+    for j in range(m):
+        diffMat = testPoint - xMat[j,:]
+        # 权重值大小以指数级衰减
+        weights[j,j] = np.exp(diffMat*diffMat.T/(-2.0*k**2))
+    xTx = xMat.T * (weights * xMat)
+    if np.linalg.det(xTx) == 0.0:
+        # 奇异矩阵，不可逆
+        print("This matrix is singular, cannot do inverse")
+        return
+    ws = xTx.I * (xMat.T * (weights * yMat))
+    return testPoint * ws
+
+def lwlrTest(testArr,xArr,yArr,k=1.0):
+    '''
+    为数据集中每条数据点调用lwlr(),有助于求解k的大小
+    :param testArr: 测试数据集
+    :param xArr: 数据集
+    :param yArr: 标签集
+    :param k: 高斯核参数k
+    :return: 计算值（预计值）
+    '''
+    m = np.shape(testArr)[0]
+    yHat = np.zeros(m)
+    for i in range(m):
+        yHat[i] = lwlr(testArr[i],xArr,yArr,k)
+    return yHat
+
+
+
 def step01():
     xArr,yArr = loadDataSet('ex0.txt');
     # 展示前两条数据
@@ -90,5 +136,31 @@ def step01():
     print(np.corrcoef(yHat.T, yMat))
 
 
+def step02():
+    xArr, yArr = loadDataSet('ex0.txt');
+    # 第一条训练集的标签
+    print(yArr[0])
+    # 第一条训练集局部加权后的预测值
+    print(lwlr(xArr[0],xArr,yArr,1.0))
+    print(lwlr(xArr[0],xArr,yArr,0.001))
+
+    # 得到所有点的估计值
+    yHat = lwlrTest(xArr,xArr,yArr,0.01)
+    xMat = np.mat(xArr)
+    # 获得排序后的索引
+    srtInd = xMat[:,1].argsort(0)
+    xSort = xMat[srtInd][:,0,:]
+
+    # 绘图
+    import matplotlib.pyplot as plt
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(xSort[:,1],yHat[srtInd])
+    ax.scatter(xMat[:,1].flatten().A[0], np.mat(yArr).T.flatten().A[0], s=2, c='red')
+    plt.show()
+
+
+
 if __name__ == "__main__":
-    step01();
+    # step01();
+    step02();
